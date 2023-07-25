@@ -1,0 +1,54 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: namespace-cleaner
+rules:
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["list", "delete"]
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: namespace-cleaner
+  namespace: default
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: namespace-cleaner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: namespace-cleaner
+subjects:
+- kind: ServiceAccount
+  name: namespace-cleaner
+  namespace: default
+
+---
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: namespace-cleaner
+spec:
+  schedule: "0 * * * *" # runs every hour
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: namespace-cleaner
+          containers:
+          - name: namespace-cleaner
+            image: rmnobarra/namespace-cleaner:1.0 # replace to your Docker image name
+            imagePullPolicy: Always
+            command: ["/namespace-cleaner"]
+            env:
+            - name: NAMESPACE_SELECTOR
+              value: "dev.*" # replace to your desired value
+          restartPolicy: OnFailure
