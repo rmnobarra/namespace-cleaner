@@ -11,12 +11,14 @@ This tool runs as a Cronjob within a Kubernetes Cluster (in the default namespac
 1. Build and publish the tool to your preferred container registry:
 
 docker build -t namespace-cleaner:1.0 .
+
 docker tag namespace-cleaner:1.0 rmnobarra/namespace-cleaner:1.0
+
 docker push rmnobarra/namespace-cleaner:1.0
 
-2. Adjust the job execution schedule parameter inside the "namespace-selector.yaml" file (line number 40).
+2. Adjust the job execution schedule parameter inside the "namespace-selector.yaml" file (line number 50).
 
-3. Update the image URL with the location of your own built image inside the "namespace-selector.yaml" file (line number 48).
+3. Update the image URL with the location of your own built image inside the "namespace-selector.yaml" file (line number 63).
 
 4. Create the Cronjob resource within your Kubernetes cluster:
 

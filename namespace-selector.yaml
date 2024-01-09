@@ -1,3 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: namespace-cleaner
+  labels:
+    name: namespace-cleaner
+
+---
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -13,7 +22,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: namespace-cleaner
-  namespace: default
+  namespace: namespace-cleaner
 
 ---
 
@@ -28,7 +37,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: namespace-cleaner
-  namespace: default
+  namespace: namespace-cleaner
 
 ---
 
@@ -36,8 +45,9 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: namespace-cleaner
+  namespace: namespace-cleaner
 spec:
-  schedule: "0 * * * *" # runs every hour
+  schedule: "* * * * *" # runs every hour
   jobTemplate:
     spec:
       template:
@@ -50,5 +60,5 @@ spec:
             command: ["/namespace-cleaner"]
             env:
             - name: NAMESPACE_SELECTOR
-              value: "dev.*" # replace to your desired value
+              value: "dev-*" # replace to your desired value
           restartPolicy: OnFailure
